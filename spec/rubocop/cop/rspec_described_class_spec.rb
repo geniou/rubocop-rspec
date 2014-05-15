@@ -30,11 +30,14 @@ describe Rubocop::Cop::RSpecDescribedClass do
     expect(cop.offenses).to be_empty
   end
 
-  it 'ignores includes' do
+  it 'enforces includes' do
     inspect_source(cop, ['describe MyClass do',
                          '  include MyClass',
                          'end'])
-    expect(cop.offenses).to be_empty
+    expect(cop.offenses.size).to eq(1)
+    expect(cop.offenses.map(&:line)).to eq([2])
+    expect(cop.messages).to eq(['Use `described_class` for tested class / ' \
+                                'module'])
   end
 
   it 'only takes class from top level describes' do

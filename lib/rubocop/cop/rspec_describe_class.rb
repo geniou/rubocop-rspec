@@ -21,7 +21,7 @@ module Rubocop
 
       def on_top_level_describe(node, args)
         first_arg = args.first
-        return unless !first_arg || first_arg.type != :const
+        return if first_arg && first_arg.type == :const
 
         add_offense(first_arg || node, :expression, MESSAGE)
       end

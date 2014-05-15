@@ -16,6 +16,10 @@ module Rubocop
     #   describe MyClass do
     #     subject { described_class.do_something }
     #   end
+    #
+    #   describe MyModule do
+    #     include described_class
+    #   end
     class RSpecDescribedClass < Cop
       include TopLevelDescribe
 
@@ -36,7 +40,6 @@ module Rubocop
 
       def inspect_children(node, object)
         return unless node.is_a? Parser::AST::Node
-        return if include?(node)
         return if node.type == :const
 
         node.children.each do |child|
@@ -46,12 +49,6 @@ module Rubocop
           end
           inspect_children(child, object)
         end
-      end
-
-      def include?(node)
-        return false unless node.type == :send
-        _, method = *node
-        method == :include
       end
     end
   end
