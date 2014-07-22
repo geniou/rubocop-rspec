@@ -27,7 +27,55 @@ module RuboCop
           message = arguments.first.to_s
           return unless message.start_with?('should')
 
-          add_offense(method, :selector, MSG)
+          arg1 = args.first.loc.expression
+          message = Parser::Source::Range
+            .new(arg1.source_buffer, arg1.begin_pos + 1, arg1.end_pos - 1)
+
+          add_offense(message, message, MSG)
+        end
+
+        # the autocorrect is experimental - use with care!
+        # there is no check if the second word (after the should) is a
+        # verb and maybe finding the correct simple present needs
+        # adaption
+        def autocorrect(range)
+          @corrections << lambda do |corrector|
+            corrector.replace(range, corrected_message(range))
+          end
+        end
+
+        def corrected_message(range)
+          range.source.split(' ').tap do |words|
+            words.shift
+            words[0] = simple_present(words[0])
+          end.join(' ')
+        end
+
+        def simple_present(word)
+          return special_case(word) if special_case(word)
+
+          # ends with o s x ch sh or ss
+          if %w(o s x]).include?(word[-1]) ||
+            %w(ch sh ss]).include?(word[-2..-1])
+            return "#{word}es"
+          end
+
+          # ends with y
+          if word[-1] == 'y' && !%w(a u i o e).include?(word[-2])
+            return "#{word[0..-2]}ies"
+          end
+
+          "#{word}s"
+        end
+
+        private
+
+        def special_case(word)
+          {
+            'be' => 'is',
+            'have' => 'has',
+            'not' => 'does not'
+          }[word]
         end
       end
     end

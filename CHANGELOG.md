@@ -1,5 +1,9 @@
 # Change log
 
+## master (unreleased)
+
+* Add `autocorrect` to `RSpec::ExampleWording` cop. This experimental - use with care and check the changes. ([@geniou][])
+
 ## 1.1.0
 
 * Add `autocorrect` to `RSpec::DescribedClass` cop. ([@geniou][])
